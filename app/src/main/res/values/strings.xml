@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">SudokuSolver</string>
+    <string name="solve">Solve</string>
+    <string name="success">Sudoku puzzle solved!</string>
+    <string name="newpuzzle">New</string>
+    <string name="create">Create</string>
 </resources>
