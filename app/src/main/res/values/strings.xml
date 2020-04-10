@@ -4,4 +4,9 @@
     <string name="success">Sudoku puzzle solved!</string>
     <string name="newpuzzle">New</string>
     <string name="create">Create</string>
+    <string name="settings">Settings</string>
+    <string name="summary_viz">turn this option on or off</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
