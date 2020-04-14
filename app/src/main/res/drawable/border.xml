@@ -1,4 +1,42 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle" >
-    <solid android:color="@android:color/white" />
+<!--    <solid android:color="@android:color/white" />-->
     <stroke android:width="3dip" android:color="@color/violet"/>
 </shape>
+<!--<vector xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    android:width="40dp"-->
+<!--    android:height="40dp"-->
+<!--    android:viewportWidth="342"-->
+<!--    android:viewportHeight="342">-->
+<!--    <path-->
+<!--        android:pathData="M0,0 L2,0 342,2 342,0 0,0z"-->
+<!--        android:fillColor="#9400d3"-->
+<!--        />-->
+<!--    <path-->
+<!--        android:pathData="M113,0 L115,0 342,115 342,113 113,0z"-->
+<!--        android:fillColor="#9400d3"-->
+<!--        />-->
+<!--    <path-->
+<!--        android:pathData="M227,0 L229,0 342,229 342,227 227,0z"-->
+<!--        android:fillColor="#9400d3"-->
+<!--        />-->
+<!--    <path-->
+<!--        android:pathData="M0,0 L2,0 342,2 342,0 0,0z"-->
+<!--        android:fillColor="#9400d3"-->
+<!--        />-->
+<!--    <path-->
+<!--        android:pathData="M0,0 L2,0 342,2 342,0 0,0z"-->
+<!--        android:fillColor="#9400d3"-->
+<!--        />-->
+<!--    <path-->
+<!--        android:pathData="M0,0 L2,0 342,2 342,0 0,0z"-->
+<!--        android:fillColor="#9400d3"-->
+<!--        />-->
+<!--    <path-->
+<!--        android:pathData="M0,0 L2,0 342,2 342,0 0,0z"-->
+<!--        android:fillColor="#9400d3"-->
+<!--        />-->
+<!--    <path-->
+<!--        android:pathData="M0,0 L2,0 342,2 342,0 0,0z"-->
+<!--        android:fillColor="#9400d3"-->
+<!--        />-->
+<!--</vector>-->

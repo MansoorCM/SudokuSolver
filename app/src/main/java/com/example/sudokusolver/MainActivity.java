@@ -30,12 +30,12 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     TextView textView;
     int index;
-    char[][] board;
-    char[] dataset;
+    static char[][] board;
+    static char[] dataset;
     //GridLayout sudoku;
     Handler mainHandler;
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter mAdapter;
+    private static RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
     private int speed;
 
@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         layoutManager = new GridLayoutManager(this,9);
         recyclerView.setLayoutManager(layoutManager);
 
-        // specify an adapter (see also next example)
+        // specify an adapter
         mAdapter = new sudokuboardAdapter(dataset);
         recyclerView.setAdapter(mAdapter);
 
@@ -143,6 +143,28 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+    public static void inputNum(int number)
+    {
+        int idx=sudokuboardAdapter.selected;
+
+        if (idx!=-1 && !sudokuboardAdapter.constants.contains(idx))
+        {
+            number+=48;
+            char val= (char) number;
+            Log.d("clicked number", String.valueOf(val));
+
+            dataset[idx]= (char) number;
+            int x=idx/9;
+            int y=idx%9;
+            board[x][y]=(char) number;
+            mAdapter.notifyDataSetChanged();
+            Log.d("this", String.valueOf(board[x][y]));
+        }else
+        {
+            Log.d("this", "select a square on board");
+        }
+
+    }
 
     class SolveHelper extends Thread{
 
@@ -201,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
                     });
 
 
-//
+//to cause a delay before showing success message
 //                    try {
 //                        Thread.sleep(4000);
 //                        break;
@@ -252,6 +274,8 @@ public class MainActivity extends AppCompatActivity {
         return list;
 
     }}
+
+    //to pass a number in looper it must be a POJO(object)
     static class Num
     {
         int number;
