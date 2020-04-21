@@ -4,14 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -20,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.GridLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +34,10 @@ public class MainActivity extends AppCompatActivity {
     private static RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
     private int speed;
+    InputNumbers numbers;
+    TextView finalTextView;
+    static int checkx,checky;
+    int x=0;
 
 
     @Override
@@ -65,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
                 {' ',' ',' ','4','1','9',' ',' ','5'},{' ',' ',' ',' ','8',' ',' ','7','9'}};
 
         recyclerView = (RecyclerView) findViewById(R.id.sudokuboard);
+        numbers=findViewById(R.id.numberimageView);
+        finalTextView=findViewById(R.id.finalTextView);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -121,6 +123,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void sudokuSolve(View view)
     {
+        numbers.setVisibility(View.GONE);
+        finalTextView.setVisibility(View.VISIBLE);
+        //finalTextView.setText(R.string.success);
         SolveHelper solveHelper=new SolveHelper(board);
         solveHelper.start();
     }
@@ -178,6 +183,18 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             super.run();
+            if(isInValidPosition(newboard))
+            {
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, R.string.problem, Toast.LENGTH_SHORT).show();
+                        finalTextView.setText(R.string.problem);
+                    }
+                });
+                return;
+
+            }
             solveSudoku(newboard);
         }
 
@@ -196,8 +213,15 @@ public class MainActivity extends AppCompatActivity {
     void solve(int row, int col){
         List<Character> candidates = new ArrayList<>();
         if(newboard[row][col] == ' ') {
+            if (x==0)
+            {
+                checkx=row;
+                checky=col;
+                ++x;
+            }
             candidates = isValid(row,col);
-            for(char a : candidates){
+            for(char a : candidates)
+            {
 
                 newboard[row][col] = a;
                 index=row*9+col;
@@ -215,10 +239,22 @@ public class MainActivity extends AppCompatActivity {
                 placeNext(row,col);
                 if(solved)
                 {
+                    if(isInValidPosition(newboard))
+                    {
+                        mainHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(MainActivity.this, R.string.problem, Toast.LENGTH_SHORT).show();
+                                finalTextView.setText(R.string.problem);
+                            }
+                        });
+                        return;
+                    }
                     mainHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(MainActivity.this, R.string.success, Toast.LENGTH_SHORT).show();
+                            finalTextView.setText(R.string.success);
                         }
                     });
 
@@ -250,6 +286,17 @@ public class MainActivity extends AppCompatActivity {
                 }
 
 
+            }
+            if(row==checkx &&col==checky)
+            {
+                mainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, R.string.problem, Toast.LENGTH_SHORT).show();
+                        finalTextView.setText(R.string.problem);
+                    }
+                });
+                return;
             }
         }else {
             placeNext(row,col);
@@ -286,4 +333,63 @@ public class MainActivity extends AppCompatActivity {
             this.value=value;
         }
     }
+    static boolean isInValidPosition(char[][] testBoard)
+    {
+        for(int row=0;row<9;row++)
+        {
+            for(int col=0;col<9;col++)
+            {
+                boolean collision = false;
+                char value=testBoard[row][col];
+                if(value!=' ')
+                {
+                    for(int i = 0; i < 9; i++){
+                        if((i!=col && testBoard[row][i] == value) ||
+                                (i!=row && testBoard[i][col] == value) ||
+                                (!(((row - row % 3) + i / 3)==row || ((col - col % 3) + i % 3)==col) && testBoard[(row - row % 3) + i / 3][(col - col % 3) + i % 3] == value)){
+                            collision = true;
+                            break;
+                        }
+                    }
+                    if(collision) {
+                        return true;
+                    }
+
+                }
+
+            }
+        }
+        return false;
+    }
+
+
+
+//    static boolean isValidPosition(char[][] testBoard)
+//    {
+//        for(int row=0;row<9;row++)
+//        {
+//            for(int col=0;col<9;col++)
+//            {
+//                boolean collision = false;
+//                char value=testBoard[row][col];
+//                if(value!=' ')
+//                {
+//                    for(int i = 0; i < 9; i++){
+//                        if((i!=col && testBoard[row][i] == value) ||
+//                                (i!=row && testBoard[i][col] == value) ||
+//                                (!(((row - row % 3) + i / 3)==row || ((col - col % 3) + i % 3)==col) && testBoard[(row - row % 3) + i / 3][(col - col % 3) + i % 3] == value)){
+//                            collision = true;
+//                            break;
+//                        }
+//                    }
+//                    if(collision) {
+//                        return false;
+//                    }
+//
+//                }
+//
+//            }
+//        }
+//        return true;
+//    }
 }
