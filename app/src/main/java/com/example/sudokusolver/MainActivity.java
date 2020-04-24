@@ -1,6 +1,7 @@
 package com.example.sudokusolver;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     TextView textView;
@@ -38,12 +40,19 @@ public class MainActivity extends AppCompatActivity {
     TextView finalTextView;
     static int checkx,checky;
     int x=0;
+    static boolean choice=false;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME |
+                ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_USE_LOGO);
+        getSupportActionBar().setIcon(R.drawable.ic_action_name);
+        Intent intent=getIntent();
+        boolean choice=intent.getBooleanExtra("choice",false);
+        initialize(choice);
        // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 //        board=new char[][]{{'.','.','9','7','4','8','.','.','.'},
 //        {'7','.','.','.','.','.','.','.','.'},{'.','2','.','1','.','9','.','.','.'},
@@ -53,16 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        dataset=new char[]{'5','3',' ',' ','7',' ',' ',' ',' '
-        ,'6',' ',' ','1','9','5',' ',' ',' ',' ','9','8',' ',' ',' ',' ','6',' '
-        ,'8',' ',' ',' ','6',' ',' ',' ','3','4',' ',' ','8',' ','3',' ',' ','1',
-                '7',' ',' ',' ','2',' ',' ',' ','6',' ','6',' ',' ',' ',' ','2','8',' ',
-                ' ',' ',' ','4','1','9',' ',' ','5',' ',' ',' ',' ','8',' ',' ','7','9'};
-        board=new char[][]{{'5','3',' ',' ','7',' ',' ',' ',' '}
-                , {'6', ' ', ' ', '1', '9', '5', ' ', ' ', ' '},{ ' ', '9', '8', ' ', ' ', ' ', ' ', '6', ' '
-        },{'8',' ',' ',' ','6',' ',' ',' ','3'},{'4',' ',' ','8',' ','3',' ',' ','1'},
-                {'7',' ',' ',' ','2',' ',' ',' ','6'},{' ','6',' ',' ',' ',' ','2','8',' '},
-                {' ',' ',' ','4','1','9',' ',' ','5'},{' ',' ',' ',' ','8',' ',' ','7','9'}};
+
 
         recyclerView = (RecyclerView) findViewById(R.id.sudokuboard);
         numbers=findViewById(R.id.numberimageView);
@@ -100,6 +100,39 @@ public class MainActivity extends AppCompatActivity {
         }else
         {
             speed=0;
+        }
+
+    }
+
+    public void initialize(boolean choice)
+    {
+        if(choice)
+        {
+            dataset=new char[81];
+            for(int i=0;i<81;i++)
+            {
+                dataset[i]=' ';
+            }
+            board=new char[9][9];
+            for(int i=0;i<9;i++)
+            {
+                for(int j=0;j<9;j++)
+                {
+                    board[i][j]=' ';
+                }
+            }
+        }else
+        {
+            dataset=new char[]{'5','3',' ',' ','7',' ',' ',' ',' '
+                    ,'6',' ',' ','1','9','5',' ',' ',' ',' ','9','8',' ',' ',' ',' ','6',' '
+                    ,'8',' ',' ',' ','6',' ',' ',' ','3','4',' ',' ','8',' ','3',' ',' ','1',
+                    '7',' ',' ',' ','2',' ',' ',' ','6',' ','6',' ',' ',' ',' ','2','8',' ',
+                    ' ',' ',' ','4','1','9',' ',' ','5',' ',' ',' ',' ','8',' ',' ','7','9'};
+            board=new char[][]{{'5','3',' ',' ','7',' ',' ',' ',' '}
+                    , {'6', ' ', ' ', '1', '9', '5', ' ', ' ', ' '},{ ' ', '9', '8', ' ', ' ', ' ', ' ', '6', ' '
+            },{'8',' ',' ',' ','6',' ',' ',' ','3'},{'4',' ',' ','8',' ','3',' ',' ','1'},
+                    {'7',' ',' ',' ','2',' ',' ',' ','6'},{' ','6',' ',' ',' ',' ','2','8',' '},
+                    {' ',' ',' ','4','1','9',' ',' ','5'},{' ',' ',' ',' ','8',' ',' ','7','9'}};
         }
 
     }
@@ -152,18 +185,22 @@ public class MainActivity extends AppCompatActivity {
     {
         int idx=sudokuboardAdapter.selected;
 
-        if (idx!=-1 && !sudokuboardAdapter.constants.contains(idx))
+        if (idx!=-1)
         {
-            number+=48;
-            char val= (char) number;
-            Log.d("clicked number", String.valueOf(val));
+            if(choice || !sudokuboardAdapter.constants.contains(idx))
+            {
+                number+=48;
+                char val= (char) number;
+                Log.d("clicked number", String.valueOf(val));
 
-            dataset[idx]= (char) number;
-            int x=idx/9;
-            int y=idx%9;
-            board[x][y]=(char) number;
-            mAdapter.notifyDataSetChanged();
-            Log.d("this", String.valueOf(board[x][y]));
+                dataset[idx]= (char) number;
+                int x=idx/9;
+                int y=idx%9;
+                board[x][y]=(char) number;
+                mAdapter.notifyDataSetChanged();
+                Log.d("this", String.valueOf(board[x][y]));
+            }
+
         }else
         {
             Log.d("this", "select a square on board");

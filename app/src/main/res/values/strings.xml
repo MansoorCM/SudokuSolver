@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SudokuSolver</string>
+    <string name="app_name">  SudokuSolver</string>
     <string name="solve">Solver</string>
     <string name="success">Sudoku puzzle solved!</string>
     <string name="problem">Invalid Sudoku puzzle</string>
