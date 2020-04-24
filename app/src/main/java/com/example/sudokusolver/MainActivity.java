@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Solver.UpdateBoard {
     TextView textView;
     int index;
     static char[][] board;
@@ -37,10 +37,11 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager layoutManager;
     private int speed;
     InputNumbers numbers;
-    TextView finalTextView;
+    static TextView finalTextView;
     static int checkx,checky;
     int x=0;
-    static boolean choice=false;
+    private static final String choiceKey="CHOICE";
+    static boolean choice;
 
 
     @Override
@@ -50,8 +51,12 @@ public class MainActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME |
                 ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_USE_LOGO);
         getSupportActionBar().setIcon(R.drawable.ic_action_name);
-        Intent intent=getIntent();
-        boolean choice=intent.getBooleanExtra("choice",false);
+
+            Log.d("main","else block");
+            Intent intent=getIntent();
+            choice=intent.getBooleanExtra("choice",false);
+
+
         initialize(choice);
        // setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 //        board=new char[][]{{'.','.','9','7','4','8','.','.','.'},
@@ -80,15 +85,15 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new sudokuboardAdapter(dataset);
         recyclerView.setAdapter(mAdapter);
 
-        mainHandler = new Handler(Looper.getMainLooper())
-        {
-            @Override
-            public void handleMessage(@NonNull Message msg) {
-                super.handleMessage(msg);
-                Num current= (Num) msg.obj;
-                setvalue(current.value,current.number);
-            }
-        };
+//        mainHandler = new Handler(Looper.getMainLooper())
+//        {
+//            @Override
+//            public void handleMessage(@NonNull Message msg) {
+//                super.handleMessage(msg);
+//                Num current= (Num) msg.obj;
+//                setvalue(current.value,current.number);
+//            }
+//        };
 
 
         PreferenceManager.setDefaultValues(this,R.xml.preferences,false);
@@ -96,13 +101,15 @@ public class MainActivity extends AppCompatActivity {
         boolean vis_mode=preferences.getBoolean(SettingsActivity.KEY_VIZ,false);
         if(vis_mode)
         {
-            speed=10;
+            speed=4;
         }else
         {
             speed=0;
         }
 
     }
+
+
 
     public void initialize(boolean choice)
     {
@@ -149,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
         if(item.getItemId()==R.id.settings)
         {
             Intent intent=new Intent(this,SettingsActivity.class);
+            intent.putExtra(choiceKey,choice);
             startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
@@ -159,28 +167,17 @@ public class MainActivity extends AppCompatActivity {
         numbers.setVisibility(View.GONE);
         finalTextView.setVisibility(View.VISIBLE);
         //finalTextView.setText(R.string.success);
-        SolveHelper solveHelper=new SolveHelper(board);
-        solveHelper.start();
+//        SolveHelper solveHelper=new SolveHelper(board);
+//        solveHelper.start();
+        new Solver(this,speed).execute(board);
     }
 
     public void setvalue(char a,int index)
     {
-        //textView= (TextView) sudoku.getChildAt(index);
-//        if(a==' ')
-//        {
-//            //textView.setTextColor(getResources().getColor(R.color.colorAccent));
-//        }
-//        else
-//        {
-           // textView.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
-            //textView.setText(String.valueOf(a));
             dataset[index]=a;
             mAdapter.notifyDataSetChanged();
-        Log.d("currentProgress", String.valueOf(a));
-//        }
-
-
     }
+
     public static void inputNum(int number)
     {
         int idx=sudokuboardAdapter.selected;
@@ -208,168 +205,42 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    class SolveHelper extends Thread{
-
-        char[][] newboard;
-        SolveHelper(char[][] board)
+    @Override
+    public void updateBoard(int num, int index) {
+        if(num!=0)
         {
-            this.newboard=board;
-
-        }
-
-        @Override
-        public void run() {
-            super.run();
-            if(isInValidPosition(newboard))
+            switch (num)
             {
-                mainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, R.string.problem, Toast.LENGTH_SHORT).show();
-                        finalTextView.setText(R.string.problem);
-                    }
-                });
-                return;
-
-            }
-            solveSudoku(newboard);
-        }
-
-        boolean solved = false;
-    void solveSudoku(char[][] board) {
-        solve(0,0);
-
-    }
-    void placeNext(int row, int col){
-        if(col == 8 && row == 8) solved = true;
-        else {
-            if(col == 8) solve(row+1,0);
-            else solve(row,col+1);
-        }
-    }
-    void solve(int row, int col){
-        List<Character> candidates = new ArrayList<>();
-        if(newboard[row][col] == ' ') {
-            if (x==0)
-            {
-                checkx=row;
-                checky=col;
-                ++x;
-            }
-            candidates = isValid(row,col);
-            for(char a : candidates)
-            {
-
-                newboard[row][col] = a;
-                index=row*9+col;
-                Num num= new Num(a, index);
-                Message message=mainHandler.obtainMessage(1,num);
-                message.sendToTarget();
-
-                try {
-                    Thread.sleep(speed);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-
-                placeNext(row,col);
-                if(solved)
-                {
-                    if(isInValidPosition(newboard))
-                    {
-                        mainHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(MainActivity.this, R.string.problem, Toast.LENGTH_SHORT).show();
-                                finalTextView.setText(R.string.problem);
-                            }
-                        });
-                        return;
-                    }
-                    mainHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainActivity.this, R.string.success, Toast.LENGTH_SHORT).show();
-                            finalTextView.setText(R.string.success);
-                        }
-                    });
-
-
-//to cause a delay before showing success message
-//                    try {
-//                        Thread.sleep(4000);
-//                        break;
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-                    return;
-
-                }
-                else
-                {
-                    newboard[row][col] = ' ';
-
-
-                    Num rnum= new Num(' ', index);
-                    Message rmessage=mainHandler.obtainMessage(1,rnum);
-                    rmessage.sendToTarget();
-                    try {
-                        Thread.sleep(speed);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-
-            }
-            if(row==checkx &&col==checky)
-            {
-                mainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, R.string.problem, Toast.LENGTH_SHORT).show();
-                        finalTextView.setText(R.string.problem);
-                    }
-                });
-                return;
-            }
-        }else {
-            placeNext(row,col);
-        }
-    }
-    List<Character> isValid(int row, int col){
-
-        List<Character> list = new ArrayList<>();
-
-        for(char a = '1'; a <='9'; a++){
-            boolean collision = false;
-            for(int i = 0; i < 9; i++){
-                if(newboard[row][i] == a || newboard[i][col] == a || newboard[(row - row % 3) + i / 3][(col - col % 3) + i % 3] == a){
-                    collision = true;
+                case 1:setvalue('1',index);
                     break;
-                }
+                case 2:setvalue('2',index);
+                    break;
+                case 3:setvalue('3',index);
+                    break;
+                case 4:setvalue('4',index);
+                    break;
+                case 5:setvalue('5',index);
+                    break;
+                case 6:setvalue('6',index);
+                    break;
+                case 7:setvalue('7',index);
+                    break;
+                case 8:setvalue('8',index);
+                    break;
+                case 9:setvalue('9',index);
+                    break;
             }
-            if(!collision) {
-                list.add(a);
-            }
+
+            //Log.d("MainActivity", String.valueOf((char) num));
         }
-        return list;
-
-    }}
-
-    //to pass a number in looper it must be a POJO(object)
-    static class Num
-    {
-        int number;
-        char value;
-        Num(char value,int number)
+        else
         {
-            this.number=number;
-            this.value=value;
+            setvalue(' ',index);
         }
+
     }
+
+
     static boolean isInValidPosition(char[][] testBoard)
     {
         for(int row=0;row<9;row++)
@@ -399,34 +270,4 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-
-
-//    static boolean isValidPosition(char[][] testBoard)
-//    {
-//        for(int row=0;row<9;row++)
-//        {
-//            for(int col=0;col<9;col++)
-//            {
-//                boolean collision = false;
-//                char value=testBoard[row][col];
-//                if(value!=' ')
-//                {
-//                    for(int i = 0; i < 9; i++){
-//                        if((i!=col && testBoard[row][i] == value) ||
-//                                (i!=row && testBoard[i][col] == value) ||
-//                                (!(((row - row % 3) + i / 3)==row || ((col - col % 3) + i % 3)==col) && testBoard[(row - row % 3) + i / 3][(col - col % 3) + i % 3] == value)){
-//                            collision = true;
-//                            break;
-//                        }
-//                    }
-//                    if(collision) {
-//                        return false;
-//                    }
-//
-//                }
-//
-//            }
-//        }
-//        return true;
-//    }
 }
