@@ -1,7 +1,7 @@
 # SudokuSolver
 
 Sudoku solver uses backtracking algorithm to solve the puzzles. it allows the user to either solve an existing 
-puzzle from the app by themselves, use the solver to solve or to insert a new puzzle in to the app.
+puzzle from the app by themselves, use the solver to solve or to insert a new puzzle in to the app. [Click here](https://github.com/MansoorCM/SudokuSolver/blob/master/sudokuSolver.apk) to download the apk file.
 
 ## Main screen
 <img src="main.jpg" width=150>
